@@ -2,7 +2,7 @@
   <!-- <arg name="input_topic_name" default="/sensing/lidar/top/pointcloud_raw"/> -->
   <arg name="input_topic_name" default="/livox/lidar"/>
   <!-- <arg name="output_topic_name" default="/sensing/lidar/top/ring_passthrough_filtered/pointcloud"/> -->
-  <arg name="output_topic_name" default="/passhthrough/lidar"/>
+  <arg name="output_topic_name" default="/passthrough/lidar"/>
   <!-- <arg name="input_frame" default=""/> -->
   <!-- <arg name="output_frame" default="base_link"/> -->
   <arg name="passthrough_filter_param_file" default="$(find-pkg-share autoware_pointcloud_preprocessor)/config/passthrough_filter_node.param.yaml"/>

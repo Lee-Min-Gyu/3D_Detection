@@ -1,6 +1,9 @@
 /**:
   ros__parameters:
+    # max_size_x:
+    # max_size_y:
+    # max_size_z:
     max_cluster_size: 200
     min_cluster_size: 7
-    tolerance: 1.0
+    tolerance: 0.5
     use_height: false

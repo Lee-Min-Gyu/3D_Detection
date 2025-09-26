@@ -20,12 +20,14 @@ PassThroughFilterComponent::PassThroughFilterComponent(const rclcpp::NodeOptions
 
     // Z축 최대값만 필터링
     this->declare_parameter<double>("z_max", 0.5);
+    this->declare_parameter<double>("z_min", 0.0);
     this->declare_parameter<double>("x_min", -3.0); 
     this->declare_parameter<double>("x_max", 3.0); 
     this->declare_parameter<double>("y_min", -3.0); 
-    this->declare_parameter<double>("y_max", 3.0);   // 1m 이상 제거
+    this->declare_parameter<double>("y_max", 3.0);  
 
     z_max_ = this->get_parameter("z_max").as_double();
+    z_min_ = this->get_parameter("z_min").as_double();
     x_min_ = this->get_parameter("x_min").as_double();
     x_max_ = this->get_parameter("x_max").as_double();
     y_min_ = this->get_parameter("y_min").as_double();
@@ -56,16 +58,17 @@ void PassThroughFilterComponent::filter(
     pass.setInputCloud(pcl_cloud);
     pass.setFilterFieldName("z");
     pass.setFilterLimits(-std::numeric_limits<double>::max(), z_max_);
+    // pass.setFilterLimits(z_min_, z_max_);
     pass.setKeepOrganized(false);
     pass.filter(*tmp_cloud);
 
-    // 2. X축 필터링 (-3m ~ 3m)
+    // 2. X축 필터링
     pass.setInputCloud(tmp_cloud);
     pass.setFilterFieldName("x");
     pass.setFilterLimits(x_min_, x_max_);
     pass.filter(*tmp_cloud);
 
-    // 3. Y축 필터링 (-3m ~ 3m)
+    // 3. Y축 필터링
     pass.setInputCloud(tmp_cloud);
     pass.setFilterFieldName("y");
     pass.setFilterLimits(y_min_, y_max_);

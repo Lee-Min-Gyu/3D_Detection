@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "euclidean_cluster_node.hpp"
-
+#include <sys/time.h>
 #include "autoware/euclidean_cluster/utils.hpp"
 #include <pcl/common/common.h>  // getMinMax3D
-
+#include <sys/resource.h>
 #include <memory>
 #include <vector>
 
@@ -50,7 +50,10 @@ void EuclideanClusterNode::onPointCloud(
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr input_msg)
 {
   stop_watch_ptr_->toc("processing_time", true);
-
+  // struct timeval start_wall, end_wall;
+  // struct rusage start_usage, end_usage;
+  // gettimeofday(&start_wall, NULL);
+  // getrusage(RUSAGE_SELF, &start_usage);
   // convert ros to pcl
   pcl::PointCloud<pcl::PointXYZ>::Ptr raw_pointcloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromROSMsg(*input_msg, *raw_pointcloud_ptr);
@@ -69,7 +72,14 @@ void EuclideanClusterNode::onPointCloud(
       double dy = max_pt.y - min_pt.y;
       double dz = max_pt.z - min_pt.z;
       
-      if (dx > 0.30 || dy > 0.30 || dz > 0.30) {
+      if (dx > 0.40 || dy > 0.40 || dz > 0.40) {
+        // if (dx > 0.50) {
+        // //   RCLCPP_INFO(this->get_logger(), "over dxxxxxxxxxxxxxxxxxxxxxx dx=%.3f", dx);
+        // // } else if (dy > 0.50) {
+        // //   RCLCPP_INFO(this->get_logger(), "over dyyyyyyyyyyyyyyyyyyyyyy dy=%.3f", dy);
+        // // } else if (dz > 0.40) {
+        // //   RCLCPP_INFO(this->get_logger(), "over dzzzzzzzzzzzzzzzzzzzzzz dz=%.3f", dz);
+        // }
           continue;  // 이거 넘는 애들은 버리자
       }
 
@@ -91,7 +101,6 @@ void EuclideanClusterNode::onPointCloud(
     output.feature_objects[i].object.shape.dimensions.y = dy;
     output.feature_objects[i].object.shape.dimensions.z = dz;
 
-    // 필요하다면 shape type도 지정
     output.feature_objects[i].object.shape.type = 0; // BOX
   }
   cluster_pub_->publish(output);
@@ -101,11 +110,26 @@ void EuclideanClusterNode::onPointCloud(
   // convertPointCloudClusters2Msg(input_msg->header, clusters, output);
   // cluster_pub_->publish(output);
   // build debug msg
+
   if (debug_pub_->get_subscription_count() >= 1) {
     sensor_msgs::msg::PointCloud2 debug;
     convertObjectMsg2SensorMsg(output, debug);
     debug_pub_->publish(debug);
   }
+  //CPU 사용량 디버깅 코드
+  // gettimeofday(&end_wall, NULL);
+  // getrusage(RUSAGE_SELF, &end_usage);
+
+  // double wall_time = (end_wall.tv_sec - start_wall.tv_sec) + 
+  //                    (end_wall.tv_usec - start_wall.tv_usec) / 1e6;
+  // double cpu_time = (end_usage.ru_utime.tv_sec - start_usage.ru_utime.tv_sec) +
+  //                   (end_usage.ru_utime.tv_usec - start_usage.ru_utime.tv_usec) / 1e6 +
+  //                   (end_usage.ru_stime.tv_sec - start_usage.ru_stime.tv_sec) +
+  //                   (end_usage.ru_stime.tv_usec - start_usage.ru_stime.tv_usec) / 1e6;
+
+  // double cpu_usage = cpu_time / wall_time * 100.0;
+  // RCLCPP_INFO(this->get_logger(), "CPU usage for onPointCloud: %.2f %%", cpu_usage);
+
   // if (debug_publisher_) {
   //   const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
   //   const double processing_time_ms = stop_watch_ptr_->toc("processing_time", true);
@@ -120,6 +144,7 @@ void EuclideanClusterNode::onPointCloud(
   //   debug_publisher_->publish<autoware_internal_debug_msgs::msg::Float64Stamped>(
   //     "debug/pipeline_latency_ms", pipeline_latency_ms);
   // }
+  
 }
 
 }  // namespace autoware::euclidean_cluster
