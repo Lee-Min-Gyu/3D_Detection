@@ -1,0 +1,13 @@
+<!-- cluster_to_obstacle_launch.xml -->
+<launch>
+    <!-- 토픽 이름 파라미터 설정 -->
+    <arg name="frenet_waypoints_topic" default="/global_waypoints" />
+    <arg name="cluster_topic" default="/clusters" />
+    <arg name="obstacle_pub_topic" default="/perception/detection/raw_obstacles" />
+
+    <node pkg="cluster_to_obstacle" exec="cluster_to_obstacle" name="cluster_to_obstacle" output="screen">
+        <param name="frenet_waypoints_topic" value="$(var frenet_waypoints_topic)" />
+        <param name="cluster_topic" value="$(var cluster_topic)" />
+        <param name="obstacle_pub_topic" value="$(var obstacle_pub_topic)" />
+    </node>
+</launch>

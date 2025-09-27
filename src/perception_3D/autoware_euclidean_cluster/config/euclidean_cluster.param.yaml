@@ -5,5 +5,5 @@
     # max_size_z:
     max_cluster_size: 200
     min_cluster_size: 7
-    tolerance: 0.5
+    tolerance: 0.8
     use_height: false
