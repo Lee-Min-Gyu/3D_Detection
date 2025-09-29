@@ -23,9 +23,7 @@ include_directories(
 
 ament_auto_add_library(${PROJECT_NAME} SHARED
   src/ray_ground_filter/node.cpp
-  src/ransac_ground_filter/node.cpp
-  src/scan_ground_filter/node.cpp
-  src/scan_ground_filter/grid_ground_filter.cpp
+
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -46,16 +44,6 @@ endif()
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "autoware::ground_segmentation::RayGroundFilterComponent"
   EXECUTABLE ray_ground_filter_node)
-
-# -- RANSAC Ground Filter --
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "autoware::ground_segmentation::RANSACGroundFilterComponent"
-  EXECUTABLE ransac_ground_filter_node)
-
-# -- Scan Ground Filter --
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "autoware::ground_segmentation::ScanGroundFilterComponent"
-  EXECUTABLE scan_ground_filter_node)
 
 
 ament_auto_package(INSTALL_TO_SHARE
@@ -92,20 +80,5 @@ if(BUILD_TESTING)
     ${PROJECT_NAME}
     ${YAML_CPP_LIBRARIES}
   )
-
-  ament_add_ros_isolated_gtest(test_scan_ground_filter
-    test/test_scan_ground_filter.cpp
-  )
-
-  target_link_libraries(test_scan_ground_filter
-    ${PROJECT_NAME}
-    ${YAML_CPP_LIBRARIES}
-  )
-  ament_add_ros_isolated_gtest(test_ransac_ground_filter
-    test/test_ransac_ground_filter.cpp
-  )
-  target_link_libraries(test_ransac_ground_filter
-    autoware_ground_segmentation
-    ${YAML_CPP_LIBRARIES})
 
 endif()
