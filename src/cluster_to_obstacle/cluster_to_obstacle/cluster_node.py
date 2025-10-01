@@ -3,12 +3,16 @@ import rclpy
 from rclpy.node import Node
 from tier4_perception_msgs.msg import DetectedObjectsWithFeature
 from f110_msgs.msg import ObstacleArray, Obstacle as ObstacleMessage
-from f110_msgs.msg import Wpnt, WpntArray
+from f110_msgs.msg import WpntArray
 import numpy as np
 from tf_transformations import euler_from_quaternion
 
-# Frenet 변환 클래스 (ForzaETH와 동일한 인터페이스 가정)
-# converter.get_frenet(x_array, y_array) -> s_array, d_array
+# TF2 imports
+from tf2_ros import Buffer, TransformListener
+from geometry_msgs.msg import PointStamped
+import tf2_geometry_msgs.tf2_geometry_msgs  # PointStamped 변환용
+
+# Frenet 변환 클래스
 from frenet_conversion.frenet_converter import FrenetConverter 
 
 class ClusterToObstacle(Node):
@@ -28,14 +32,14 @@ class ClusterToObstacle(Node):
             10
         )
 
-        # --- Frenet converter ---
         self.converter = None
         self.waypoints_sub = self.create_subscription(
-            WpntArray,  # 여기를 올바른 메시지 타입으로 수정
+            WpntArray,
             self.get_parameter("frenet_waypoints_topic").value,
             self.waypoints_callback,
             10
         )
+
         # --- Publisher ---
         self.obstacles_pub = self.create_publisher(
             ObstacleArray,
@@ -43,13 +47,15 @@ class ClusterToObstacle(Node):
             10
         )
 
-    def waypoints_callback(self, msg):
+        # --- TF2 buffer & listener ---
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
+    def waypoints_callback(self, msg):
         xs = [wpnt.x_m for wpnt in msg.wpnts]
         ys = [wpnt.y_m for wpnt in msg.wpnts]
         psis = [wpnt.psi_rad for wpnt in msg.wpnts]
         self.converter = FrenetConverter(np.array(xs), np.array(ys), np.array(psis))
-        # self.get_logger().info("FrenetConverter initialized")
 
     def cluster_callback(self, msg: DetectedObjectsWithFeature):
         if self.converter is None:
@@ -63,12 +69,25 @@ class ClusterToObstacle(Node):
         x_centers = []
         y_centers = []
 
+        # --- TF2 변환: livox_frame -> map ---
         for obj in msg.feature_objects:
-            x = obj.object.kinematics.pose_with_covariance.pose.position.x
-            y = obj.object.kinematics.pose_with_covariance.pose.position.y
-            x_centers.append(x)
-            y_centers.append(y)
+            point_livox = PointStamped()
+            point_livox.header.frame_id = "livox_frame"
+            point_livox.header.stamp = self.get_clock().now().to_msg()
+            point_livox.point.x = obj.object.kinematics.pose_with_covariance.pose.position.x
+            point_livox.point.y = obj.object.kinematics.pose_with_covariance.pose.position.y
+            point_livox.point.z = obj.object.kinematics.pose_with_covariance.pose.position.z
 
+            try:
+                # TF transform (livox_frame -> map)
+                point_map = self.tf_buffer.transform(point_livox, "map", timeout=rclpy.duration.Duration(seconds=0.5))
+                x_centers.append(point_map.point.x)
+                y_centers.append(point_map.point.y)
+            except Exception as e:
+                self.get_logger().warn(f"TF transform failed: {e}")
+                continue
+
+        # --- Frenet 변환 ---
         s_array, d_array = self.converter.get_frenet(np.array(x_centers), np.array(y_centers))
 
         for idx, obj in enumerate(msg.feature_objects):
@@ -83,9 +102,6 @@ class ClusterToObstacle(Node):
             obs_msg.s_end = s_array[idx] + size/2
             obs_msg.d_left = d_array[idx] + size/2
             obs_msg.d_right = d_array[idx] - size/2
-
-            # Optional: yaw 저장 가능
-            # obs_msg.theta = yaw  
 
             obs_array_msg.obstacles.append(obs_msg)
 
