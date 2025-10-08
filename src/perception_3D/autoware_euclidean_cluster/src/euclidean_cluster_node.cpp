@@ -29,6 +29,10 @@ EuclideanClusterNode::EuclideanClusterNode(const rclcpp::NodeOptions & options)
   const int min_cluster_size = this->declare_parameter("min_cluster_size", 3);
   const int max_cluster_size = this->declare_parameter("max_cluster_size", 200);
   const float tolerance = this->declare_parameter("tolerance", 1.0);
+  max_x_ = this->declare_parameter("max_x", 0.50);
+  max_y_ = this->declare_parameter("max_y", 0.50);
+  max_z_ = this->declare_parameter("max_z", 0.40);
+
   cluster_ =
     std::make_shared<EuclideanCluster>(use_height, min_cluster_size, max_cluster_size, tolerance);
 
@@ -50,11 +54,7 @@ void EuclideanClusterNode::onPointCloud(
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr input_msg)
 {
   stop_watch_ptr_->toc("processing_time", true);
-  // struct timeval start_wall, end_wall;
-  // struct rusage start_usage, end_usage;
-  // gettimeofday(&start_wall, NULL);
-  // getrusage(RUSAGE_SELF, &start_usage);
-  // convert ros to pcl
+
   pcl::PointCloud<pcl::PointXYZ>::Ptr raw_pointcloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromROSMsg(*input_msg, *raw_pointcloud_ptr);
 
@@ -72,7 +72,7 @@ void EuclideanClusterNode::onPointCloud(
       double dy = max_pt.y - min_pt.y;
       double dz = max_pt.z - min_pt.z;
       
-      if (dx > 0.40 || dy > 0.40 || dz > 0.40) {
+      if (dx > max_x_ || dy > max_y_ || dz > max_z_) {
         // if (dx > 0.50) {
         // //   RCLCPP_INFO(this->get_logger(), "over dxxxxxxxxxxxxxxxxxxxxxx dx=%.3f", dx);
         // // } else if (dy > 0.50) {
@@ -116,34 +116,7 @@ void EuclideanClusterNode::onPointCloud(
     convertObjectMsg2SensorMsg(output, debug);
     debug_pub_->publish(debug);
   }
-  //CPU 사용량 디버깅 코드
-  // gettimeofday(&end_wall, NULL);
-  // getrusage(RUSAGE_SELF, &end_usage);
 
-  // double wall_time = (end_wall.tv_sec - start_wall.tv_sec) + 
-  //                    (end_wall.tv_usec - start_wall.tv_usec) / 1e6;
-  // double cpu_time = (end_usage.ru_utime.tv_sec - start_usage.ru_utime.tv_sec) +
-  //                   (end_usage.ru_utime.tv_usec - start_usage.ru_utime.tv_usec) / 1e6 +
-  //                   (end_usage.ru_stime.tv_sec - start_usage.ru_stime.tv_sec) +
-  //                   (end_usage.ru_stime.tv_usec - start_usage.ru_stime.tv_usec) / 1e6;
-
-  // double cpu_usage = cpu_time / wall_time * 100.0;
-  // RCLCPP_INFO(this->get_logger(), "CPU usage for onPointCloud: %.2f %%", cpu_usage);
-
-  // if (debug_publisher_) {
-  //   const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
-  //   const double processing_time_ms = stop_watch_ptr_->toc("processing_time", true);
-  //   const double pipeline_latency_ms =
-  //     std::chrono::duration<double, std::milli>(
-  //       std::chrono::nanoseconds((this->get_clock()->now() - output.header.stamp).nanoseconds()))
-  //       .count();
-  //   debug_publisher_->publish<autoware_internal_debug_msgs::msg::Float64Stamped>(
-  //     "debug/cyclic_time_ms", cyclic_time_ms);
-  //   debug_publisher_->publish<autoware_internal_debug_msgs::msg::Float64Stamped>(
-  //     "debug/processing_time_ms", processing_time_ms);
-  //   debug_publisher_->publish<autoware_internal_debug_msgs::msg::Float64Stamped>(
-  //     "debug/pipeline_latency_ms", pipeline_latency_ms);
-  // }
   
 }
 

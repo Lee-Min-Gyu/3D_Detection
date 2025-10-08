@@ -37,6 +37,10 @@ public:
 private:
   void onPointCloud(sensor_msgs::msg::PointCloud2::ConstSharedPtr input_msg);
 
+  double max_x_;
+  double max_y_;
+  double max_z_;
+  
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
   rclcpp::Publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr cluster_pub_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr debug_pub_;
