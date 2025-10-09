@@ -1,0 +1,14 @@
+<launch>
+    <!-- pc2_to_scan 노드 -->
+    <node
+        pkg="pc2_to_scan" exec="pc2_to_laserscan" name="pc2_to_laserscan" output="screen">
+        <param name="pc_topic" value="/ground_segmentation/lidar"/>
+        <param name="scan_topic" value="/scan"/>
+        <param name="angle_min" value="-3.14159265359"/>
+        <param name="angle_max" value="3.14159265359"/>
+        <param name="angle_increment_deg" value="0.25"/>
+        <param name="range_min" value="0.1"/>
+        <param name="range_max" value="70.0"/>
+        <param name="use_closest_point" value="true"/>
+    </node>
+</launch>
