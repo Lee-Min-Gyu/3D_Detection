@@ -6,7 +6,7 @@
     <arg name="measure" default="False" />
 
     <!-- launch controller manager -->
-    <include file="$(find-pkg-share controller)/launch/controller_launch.xml">
+    <include file="$(find-pkg-share controller_cpp)/launch/controller_launch.xml">
         <arg name="mode" value="$(var ctrl_algo)"/>
     </include>
     
@@ -26,6 +26,7 @@
     <include file="$(find-pkg-share perception)/launch/perception_launch.xml">
         <arg name="param_file" value="$(find-pkg-share stack_master)/config/opponent_tracker_params.yaml" />
     </include> 
+    
     <!-- autoware_pointcloud_preprocessor -->
     <include file="$(find-pkg-share autoware_pointcloud_preprocessor)/launch/ring_passthrough_filter.launch.xml" />
 
@@ -36,7 +37,7 @@
     <include file="$(find-pkg-share autoware_euclidean_cluster)/launch/euclidean_cluster.launch.xml" />
 
     <!-- cluster_to_obstacle -->
-    <include file="$(find-pkg-share cluster_to_obstacle)/launch/cluster_to_obstacle.launch.py" />
-    <include file="$(find-pkg-share pc2_to_scan)/launch/pc2_to_scan.launch.xml" />
+    <include file="$(find-pkg-share cluster_to_obstacle_cpp)/launch/cluster_to_obstacle_cpp.launch.xml" />
+    <include file="$(find-pkg-share pc2_to_scan_cpp)/launch/pc2_to_laserscan.launch.xml" />
 
 </launch>

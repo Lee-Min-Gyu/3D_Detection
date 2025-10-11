@@ -36,8 +36,8 @@ class ClusterToObstacle(Node):
 
         self.declare_parameter("min_obs_size", 0.05)            
         self.declare_parameter("max_obs_size", 0.5)             
-        self.declare_parameter("max_viewing_distance", 9.0)     
-        self.declare_parameter("boundaries_inflation", 0.3)     
+        self.declare_parameter("max_viewing_distance", 5.0)     
+        self.declare_parameter("boundaries_inflation", 0.1)     
 
         self.min_obs_size = self.get_parameter("min_obs_size").value
         self.max_obs_size = self.get_parameter("max_obs_size").value
@@ -113,8 +113,7 @@ class ClusterToObstacle(Node):
 
     def laserPointOnTrack(self, s: float, d: float, car_s: float) -> bool:
         # Requires self.track_length, self.s_array, self.d_right_array, self.d_left_array, self.smallest_d, self.biggest_d
-        if self.track_length is None:
-            return False
+
         if self.normalize_s(s - car_s, self.track_length) > self.max_viewing_distance:
             return False
         if abs(d) >= self.biggest_d:
@@ -239,8 +238,8 @@ class ClusterToObstacle(Node):
 
                 if not self.laserPointOnTrack(s, d, self.car_s):
                     continue
-                if size < self.min_obs_size or size > self.max_obs_size:
-                    continue
+                # if size < self.min_obs_size or size > self.max_obs_size:
+                #     continue
 
                 obs_msg = ObstacleMessage()
                 obs_msg.id = published_count
@@ -293,6 +292,7 @@ def main():
         rclpy.spin(node)
     except KeyboardInterrupt:
         node.get_logger().info("KeyboardInterrupt")
+        
     node.destroy_node()
     rclpy.shutdown()
 

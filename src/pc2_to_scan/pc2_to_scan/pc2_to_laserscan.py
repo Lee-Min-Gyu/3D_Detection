@@ -18,11 +18,11 @@ class Pc2ToLaserScan(Node):
         # ---- 사용자 환경에 맞춘 파라미터 ----
         self.declare_parameter('pc_topic', '/ground_segmentation/lidar')  
         self.declare_parameter('scan_topic', '/scan')          
-        self.declare_parameter('angle_min', -math.pi)                    
-        self.declare_parameter('angle_max', math.pi)                      
+        self.declare_parameter('angle_min', -3 * math.pi / 4)                    
+        self.declare_parameter('angle_max', 3 * math.pi / 4)                      
         self.declare_parameter('angle_increment_deg', 0.25)               
         self.declare_parameter('range_min', 0.1)                          
-        self.declare_parameter('range_max', 70.0)                         
+        self.declare_parameter('range_max', 7.0)                         
         self.declare_parameter('use_closest_point', True)                 
 
         pc_topic = self.get_parameter('pc_topic').value
