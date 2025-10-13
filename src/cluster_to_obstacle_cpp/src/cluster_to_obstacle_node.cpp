@@ -42,7 +42,7 @@ public:
     min_obs_size_           = declare_parameter<double>("min_obs_size", 0.05);
     max_obs_size_           = declare_parameter<double>("max_obs_size", 0.5);
     max_viewing_distance_   = declare_parameter<double>("max_viewing_distance", 5.0);
-    boundaries_inflation_   = declare_parameter<double>("boundaries_inflation", 0.1);
+    boundaries_inflation_   = declare_parameter<double>("boundaries_inflation", 0.15);
 
     input_frame_            = declare_parameter<std::string>("input_frame", "livox_frame");
     map_frame_              = declare_parameter<std::string>("map_frame", "map");
