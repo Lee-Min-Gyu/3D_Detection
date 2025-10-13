@@ -1,2 +1,2 @@
 # ws_autoware
-autoware_universe for f1tenth Detection
+3D Detection Integration to ForzaETH race_stack
