@@ -2,9 +2,9 @@
   ros__parameters:
     filter_limit_min: 0
     z_max : 0.3
-    z_min : -0.02
-    x_max : 1.5
-    x_min : -1.5
+    z_min : 0.01
+    x_max : 4.0
+    x_min : -4.0
     y_max : 0.0
     y_min : -5.0
     # filter_limit_max: 1

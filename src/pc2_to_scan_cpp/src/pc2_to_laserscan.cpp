@@ -15,7 +15,8 @@ public:
   : rclcpp::Node("pc2_to_laserscan")
   {
     // ---- Parameters (same defaults as Python) ----
-    pc_topic_  = declare_parameter<std::string>("pc_topic", "/ground_segmentation/lidar");
+    pc_topic_  = declare_parameter<std::string>("pc_topic", "/passthrough/lidar");
+    // pc_topic_  = declare_parameter<std::string>("pc_topic", "/ground_segmentation/lidar");
     scan_topic_ = declare_parameter<std::string>("scan_topic", "/scan");
     angle_min_ = declare_parameter<double>("angle_min", -3.0 * M_PI / 4.0);
     angle_max_ = declare_parameter<double>("angle_max",  3.0 * M_PI / 4.0);

@@ -39,8 +39,6 @@ public:
     obstacle_pub_topic_     = declare_parameter<std::string>("obstacle_pub_topic", "/perception/detection/raw_obstacles");
     obstacle_marker_topic_  = declare_parameter<std::string>("obstacle_marker_topic", "/perception/detection/obstacles_markers");
 
-    min_obs_size_           = declare_parameter<double>("min_obs_size", 0.05);
-    max_obs_size_           = declare_parameter<double>("max_obs_size", 0.5);
     max_viewing_distance_   = declare_parameter<double>("max_viewing_distance", 5.0);
     boundaries_inflation_   = declare_parameter<double>("boundaries_inflation", 0.15);
 
@@ -213,7 +211,6 @@ private:
         const double size = valids[i].size;
 
         if (!laserPointOnTrack(s, d, car_s_)) continue;
-        // if (size < min_obs_size_ || size > max_obs_size_) continue; // 원코드와 동일하게 주석
 
         f110_msgs::msg::Obstacle ob;
         ob.id = static_cast<int32_t>(published);
@@ -299,7 +296,7 @@ private:
 private:
   // Params
   std::string frenet_waypoints_topic_, cluster_topic_, obstacle_pub_topic_, obstacle_marker_topic_;
-  double min_obs_size_{0.05}, max_obs_size_{0.5}, max_viewing_distance_{5.0}, boundaries_inflation_{0.1};
+  double max_viewing_distance_{5.0}, boundaries_inflation_{0.1};
   std::string input_frame_{"livox_frame"}, map_frame_{"map"};
 
   // Pubs/Subs
