@@ -34,7 +34,7 @@ public:
     tf_listener_(tf_buffer_) {
 
     // ---------- Parameters ----------
-    this->declare_parameter<double>("boundaries_ifnflation", 0.00);
+    this->declare_parameter<double>("boundaries_inflation", 0.18);
     frenet_waypoints_topic_ = declare_parameter<std::string>("frenet_waypoints_topic", "/global_waypoints");
     cluster_topic_          = declare_parameter<std::string>("cluster_topic", "/clusters");
     obstacle_pub_topic_     = declare_parameter<std::string>("obstacle_pub_topic", "/perception/detection/raw_obstacles");
@@ -174,58 +174,17 @@ private:
     for (const auto &fo : msg->feature_objects) {
       geometry_msgs::msg::PointStamped in_pt, map_pt;
       in_pt.header.frame_id = input_frame_;
-
-
-      // 기존 민규 코드
-      // in_pt.header.stamp = now();
-      // in_pt.point.x = fo.object.kinematics.pose_with_covariance.pose.position.x;
-      // in_pt.point.y = fo.object.kinematics.pose_with_covariance.pose.position.y;
-      // in_pt.point.z = fo.object.kinematics.pose_with_covariance.pose.position.z;
-
-      // try {
-      //   map_pt = tf_buffer_.transform(in_pt, map_frame_, tf2::durationFromSec(0.05));
-      // } catch (const std::exception &e) {
-      //   RCLCPP_DEBUG(get_logger(), "TF transform failed: %s", e.what());
-      //   continue;
-      // }
-
-      
-      // 1102.23.20. 준성 수정 코드
-      // 1. 기존: now() 일 때의 tf를 사용하여 변환 -> 변경: msg->header.stamp 일 때의 tf를 사용하여 변환
-      // 2. 기존: tf_buffer_.transform 실패 시 경고 메시지만 출력 -> 변경: tf_buffer_.transform 실패 시 가장 최신 tf라도 일단 활용
-
-      if (msg->header.stamp.sec != 0 || msg->header.stamp.nanosec != 0) 
-      {
-        in_pt.header.stamp = msg->header.stamp; // 라이다 데이터의 타임스탬프 기준 변환을 시도
-      } else {
-        in_pt.header.stamp = now();  // 최후 fallback (가능하면 지양)
-      }
-
+      in_pt.header.stamp = now();
       in_pt.point.x = fo.object.kinematics.pose_with_covariance.pose.position.x;
       in_pt.point.y = fo.object.kinematics.pose_with_covariance.pose.position.y;
       in_pt.point.z = fo.object.kinematics.pose_with_covariance.pose.position.z;
 
       try {
-        // --- (A) 라이다 데이터의 타임스탬프 기준 변환 시도 ---
         map_pt = tf_buffer_.transform(in_pt, map_frame_, tf2::durationFromSec(0.05));
-
-      } catch (const std::exception &e_ts) {
-        // --- (B) 실패 시 최신 TF로 강제 변환 ---
-        try {
-          const auto tf_latest =
-              tf_buffer_.lookupTransform(map_frame_, input_frame_, tf2::TimePointZero);
-          tf2::doTransform(in_pt, map_pt, tf_latest);
-
-          RCLCPP_DEBUG(get_logger(),
-                      "Timestamped TF missing (%s). Fallback to latest TF succeeded.",
-                      e_ts.what());
-        } catch (const std::exception &e_latest) {
-          RCLCPP_DEBUG(get_logger(),
-                      "Both timestamped and latest TF failed: %s", e_latest.what());
-          continue;
-        }
+      } catch (const std::exception &e) {
+        RCLCPP_DEBUG(get_logger(), "TF transform failed: %s", e.what());
+        continue;
       }
-
 
       double size = 0.0;
       try {
@@ -255,7 +214,7 @@ private:
         const double d = d_out[i];
         const double size = valids[i].size;
 
-        if (!laserPointOnTrack(s, d, car_s_)) continue;
+        // if (!laserPointOnTrack(s, d, car_s_)) continue;
         // if (size < min_obs_size_ || size > max_obs_size_) continue; // 원코드와 동일하게 주석
 
         f110_msgs::msg::Obstacle ob;
@@ -342,7 +301,7 @@ private:
 private:
   // Params
   std::string frenet_waypoints_topic_, cluster_topic_, obstacle_pub_topic_, obstacle_marker_topic_;
-  double min_obs_size_{0.05}, max_obs_size_{0.5}, max_viewing_distance_{5.0}, boundaries_inflation_{0.0};
+  double min_obs_size_{0.05}, max_obs_size_{0.5}, max_viewing_distance_{5.0}, boundaries_inflation_{0.1};
   std::string input_frame_{"livox_frame"}, map_frame_{"map"};
 
   // Pubs/Subs

@@ -1,4 +1,5 @@
 <launch>
+    <arg name="cluster_to_obstacle_param_file" default="$(find-pkg-share cluster_to_obstacle_cpp)/config/cluster_to_obstacle_node.param.yaml"/>
     <!-- <arg name="frenet_waypoints_topic" default="/global_waypoints"/>
     <arg name="cluster_topic" default="/clusters"/>
     <arg name="obstacle_pub_topic" default="/perception/detection/raw_obstacles"/> -->

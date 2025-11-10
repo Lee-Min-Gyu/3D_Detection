@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- <arg name="input_pointcloud" default="/ground_segmentation/lidar"/> -->
-  <arg name="input_pointcloud" default="/passthrough/lidar"/>
+  <arg name="input_pointcloud" default="/ground_segmentation/lidar"/>
+  <!-- <arg name="input_pointcloud" default="/passthrough/lidar"/> -->
   <arg name="input_map" default="/map/pointcloud_map"/>
   <arg name="output_clusters" default="clusters"/>
   <arg name="use_low_height_cropbox" default="false"/>

@@ -1,5 +1,5 @@
 <launch>
-  <arg name="pc_topic" default="/ground_segmentation/lidar"/>
+  <arg name="pc_topic" default="/passthrough/lidar"/>
   <arg name="scan_topic" default="/scan"/>
 
   <node pkg="pc2_to_scan_cpp" exec="pc2_to_laserscan" name="pc2_to_laserscan" output="screen">

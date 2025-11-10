@@ -9,7 +9,7 @@
       local_max_slope: 6.0                      # 2~3이 정배  5 10
       initial_max_slope: 3.0                    # 1이 정배 1 5  8 11
       radial_divider_angle: 1.0
-      min_height_threshold: 0.05
+      min_height_threshold: 0.02
       concentric_divider_distance: 0.0
       reclass_distance_threshold: 0.1
 
