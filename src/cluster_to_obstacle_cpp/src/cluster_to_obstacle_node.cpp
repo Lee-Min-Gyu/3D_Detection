@@ -34,7 +34,7 @@ public:
     tf_listener_(tf_buffer_) {
 
     // ---------- Parameters ----------
-    this->declare_parameter<double>("boundaries_ifnflation", 0.00);
+    this->declare_parameter<double>("boundaries_inflation", 0.0);
     frenet_waypoints_topic_ = declare_parameter<std::string>("frenet_waypoints_topic", "/global_waypoints");
     cluster_topic_          = declare_parameter<std::string>("cluster_topic", "/clusters");
     obstacle_pub_topic_     = declare_parameter<std::string>("obstacle_pub_topic", "/perception/detection/raw_obstacles");

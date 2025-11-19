@@ -19,8 +19,10 @@ install(TARGETS
   pc2_to_laserscan
   DESTINATION lib/${PROJECT_NAME})
 
-# (옵션) launch/ 디렉토리 설치시 필요
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME})
 
+install(DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
+)
 ament_package()
